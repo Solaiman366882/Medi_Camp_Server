@@ -28,6 +28,24 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    // ****************** Database Operation Start ******************
+
+    const database = client.db("mediCampDB");
+    const campCollection = database.collection("camps");
+
+    // insert new camp to database
+    app.post("/camps",async(req,res) => {
+        const newCamp = req.body;
+        const result = await campCollection.insertOne(newCamp);
+        res.send(result);
+    });
+
+    // ****************** Database Operation End ******************
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
