@@ -33,6 +33,7 @@ async function run() {
 
     const database = client.db("mediCampDB");
     const campCollection = database.collection("camps");
+    const registerCollection = database.collection("registered")
 
     // insert new camp to database
     app.post("/camps",async(req,res) => {
@@ -53,7 +54,13 @@ async function run() {
       const id = req.params;
       const query = {_id: new ObjectId(id)}
       const result = await campCollection.findOne(query);
-      console.log(result);
+      res.send(result);
+    })
+
+    //make user as a camp participant
+    app.post('/register',async(req,res) => {
+      const registerInfo = req.body;
+      const result = await registerCollection.insertOne(registerInfo);
       res.send(result);
     })
 
