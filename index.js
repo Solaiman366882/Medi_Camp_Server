@@ -62,10 +62,12 @@ async function run() {
 			const query = { _id: new ObjectId(id) };
 			const updatedParticipants = {
 				$set: {
-					participants:newParticipants
+					participants:newParticipants.participants,
 				},
 			};
+      // const options = {upsert:true};
       const result = await campCollection.updateOne(query,updatedParticipants);
+      console.log(newParticipants,id,result);
       res.send(result);
 		});
 
