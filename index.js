@@ -41,6 +41,13 @@ async function run() {
         res.send(result);
     });
 
+    //get all camps data
+    app.get("/camps",async(req,res) => {
+      const cursor = campCollection.find();
+      const result = cursor.toArray();
+      res.send(result);
+    })
+
     // ****************** Database Operation End ******************
 
 
