@@ -32,6 +32,15 @@ async function run() {
 		const database = client.db("mediCampDB");
 		const campCollection = database.collection("camps");
 		const registerCollection = database.collection("registered");
+    const userCollection = database.userCollection("users");
+
+
+    //insert new user to database
+    app.post("/users",async(req,res) => {
+      const user = req.body;
+      const result = await userCollection.insertOne(user) ;
+      res.send(result);
+    })
 
 		// insert new camp to database
 		app.post("/camps", async (req, res) => {
