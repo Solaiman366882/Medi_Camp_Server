@@ -24,13 +24,13 @@ const verifyToken = (req,res,next) => {
 	console.log(authorization);
 	if(!authorization)
 	{
-		return res.status(401).send({message:'Unauthorize'});
+		return res.status(401).send({message:'unauthorized'});
 	}
 	const token = authorization.split(' ')[1];
 	jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,(err,decoded) => {
 		if(err)
 		{
-			return res.status(401).send({message:'Unauthorize'});	
+			return res.status(401).send({message:'unauthorized'});	
 		}
 		req.decoded = decoded;
 		next()
@@ -104,6 +104,23 @@ async function run() {
 			const result = await userCollection.updateOne(filter,updatedUser);
 			res.send(result);
 		});
+
+		//verify is user an admin
+		app.get("/users/admin/:email",verifyToken,async(req,res) => {
+			const email = req.params.email;
+			if(email !== req.decoded.email)
+			{
+				return res.status(403).send({message:"forbidden access"})
+			}
+			const query= {email:email};
+			const user = await userCollection.findOne(query);
+			let admin = false;
+			if(user)
+			{
+				admin = user?.role === 'admin';
+			}
+			res.send({admin})
+		})
 
 		//make user Organizer
 		app.patch("/users/organizer/:id", async(req,res) => {
