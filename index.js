@@ -51,6 +51,13 @@ async function run() {
 			const cursor = userCollection.find();
 			const result = await cursor.toArray();
 			res.send(result)
+		});
+		//delete user by id
+		app.delete("/users/:id",async(req,res) => {
+			const id = req.params.id;
+			const query={_id:new ObjectId(id)};
+			const result = await userCollection.deleteOne(query);
+			res.send(result)
 		})
 
 		// insert new camp to database
