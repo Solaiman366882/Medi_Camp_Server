@@ -32,12 +32,18 @@ async function run() {
 		const database = client.db("mediCampDB");
 		const campCollection = database.collection("camps");
 		const registerCollection = database.collection("registered");
-    const userCollection = database.userCollection("users");
+    const userCollection = database.collection("users");
 
 
     //insert new user to database
     app.post("/users",async(req,res) => {
       const user = req.body;
+      const query = {email:user.email};
+      const isExist = await userCollection.findOne(query);
+      if(isExist)
+      {
+        return res.send({message:'user exist',insertedId:null})
+      }
       const result = await userCollection.insertOne(user) ;
       res.send(result);
     })
