@@ -1,12 +1,43 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require('jsonwebtoken')
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-//usgin built in middlewares
+//using built in middlewares
 app.use(cors());
 app.use(express.json());
+
+// ********** Custom MiddleWares Start **************
+
+app.post('/jwt',async(req,res) => {
+	const user = req.body;
+	const token = jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{
+		expiresIn:'1h'
+	})
+	res.send({token})
+})
+
+const verifyToken = (req,res,next) => {
+	const authorization = req.headers.authorization;
+	console.log(authorization);
+	if(!authorization)
+	{
+		return res.status(401).send({message:'Unauthorize'});
+	}
+	const token = authorization.split(' ')[1];
+	jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,(err,decoded) => {
+		if(err)
+		{
+			return res.status(401).send({message:'Unauthorize'});	
+		}
+		req.decoded = decoded;
+		next()
+	})
+}
+
+// ********** Custom MiddleWares End **************
 
 // *************************** MongoDB Connection Start **************************
 
@@ -47,7 +78,7 @@ async function run() {
 		});
 
 		//Get All User from Database
-		app.get("/users",async(req,res) => {
+		app.get("/users",verifyToken,async(req,res) => {
 			const cursor = userCollection.find();
 			const result = await cursor.toArray();
 			res.send(result)
