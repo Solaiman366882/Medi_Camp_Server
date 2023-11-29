@@ -32,21 +32,26 @@ async function run() {
 		const database = client.db("mediCampDB");
 		const campCollection = database.collection("camps");
 		const registerCollection = database.collection("registered");
-    const userCollection = database.collection("users");
+		const userCollection = database.collection("users");
 
+		//insert new user to database
+		app.post("/users", async (req, res) => {
+			const user = req.body;
+			const query = { email: user.email };
+			const isExist = await userCollection.findOne(query);
+			if (isExist) {
+				return res.send({ message: "user exist", insertedId: null });
+			}
+			const result = await userCollection.insertOne(user);
+			res.send(result);
+		});
 
-    //insert new user to database
-    app.post("/users",async(req,res) => {
-      const user = req.body;
-      const query = {email:user.email};
-      const isExist = await userCollection.findOne(query);
-      if(isExist)
-      {
-        return res.send({message:'user exist',insertedId:null})
-      }
-      const result = await userCollection.insertOne(user) ;
-      res.send(result);
-    })
+		//Get All User from Database
+		app.get("/users",async(req,res) => {
+			const cursor = userCollection.find();
+			const result = await cursor.toArray();
+			res.send(result)
+		})
 
 		// insert new camp to database
 		app.post("/camps", async (req, res) => {
@@ -73,17 +78,20 @@ async function run() {
 		//update participant count
 		app.patch("/participant/:id", async (req, res) => {
 			const id = req.params;
-      const newParticipants = req.body;
+			const newParticipants = req.body;
 			const query = { _id: new ObjectId(id) };
 			const updatedParticipants = {
 				$set: {
-					participants:newParticipants.participants,
+					participants: newParticipants.participants,
 				},
 			};
-      // const options = {upsert:true};
-      const result = await campCollection.updateOne(query,updatedParticipants);
-      console.log(newParticipants,id,result);
-      res.send(result);
+			// const options = {upsert:true};
+			const result = await campCollection.updateOne(
+				query,
+				updatedParticipants
+			);
+			console.log(newParticipants, id, result);
+			res.send(result);
 		});
 
 		//make user as a camp participant
