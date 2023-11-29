@@ -52,13 +52,40 @@ async function run() {
 			const result = await cursor.toArray();
 			res.send(result)
 		});
+
 		//delete user by id
 		app.delete("/users/:id",async(req,res) => {
 			const id = req.params.id;
 			const query={_id:new ObjectId(id)};
 			const result = await userCollection.deleteOne(query);
 			res.send(result)
-		})
+		});
+
+		//make user admin
+		app.patch("/users/admin/:id", async(req,res) => {
+			const id=req.params.id;
+			const filter = {_id : new ObjectId(id)};
+			const updatedUser = {
+				$set:{
+					role:'admin'
+				}
+			}
+			const result = await userCollection.updateOne(filter,updatedUser);
+			res.send(result);
+		});
+
+		//make user Organizer
+		app.patch("/users/organizer/:id", async(req,res) => {
+			const id=req.params.id;
+			const filter = {_id : new ObjectId(id)};
+			const updatedUser = {
+				$set:{
+					role:'organizer'
+				}
+			}
+			const result = await userCollection.updateOne(filter,updatedUser);
+			res.send(result);
+		});
 
 		// insert new camp to database
 		app.post("/camps", async (req, res) => {
