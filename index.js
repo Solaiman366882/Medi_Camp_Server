@@ -200,6 +200,23 @@ async function run() {
 			res.send(result);
 		});
 
+		//get all registered camps
+		app.get("/register",async (req,res) => {
+			const email =req.query.email;
+			const query = {email:email};
+			const cursor = registerCollection.find(query);
+			const result = await cursor.toArray();
+			res.send(result);
+		})
+
+		//delete user registered camps
+		app.delete("/register/:id",async(req,res) => {
+			const id = req.params.id;
+			const query = {_id : new ObjectId(id)};
+			const result = await registerCollection.deleteOne(query);
+			res.send(result);
+		});
+
 		// ****************** Database Operation End ******************
 
 		// Send a ping to confirm a successful connection
