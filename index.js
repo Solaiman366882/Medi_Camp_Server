@@ -201,11 +201,31 @@ async function run() {
 			res.send(result);
 		});
 
-		//get all registered camps
+		//get specific registered camps
 		app.get("/register",verifyToken,async (req,res) => {
 			const email =req.query.email;
 			const query = {email:email};
 			const cursor = registerCollection.find(query);
+			const result = await cursor.toArray();
+			res.send(result);
+		});
+
+		//update specific registered camps
+		app.get("/status/register/:id",verifyToken,async (req,res) => {
+			const id=req.params.id;
+			const filter = {_id : new ObjectId(id)};
+			const updatedUser = {
+				$set:{
+					status:'approved'
+				}
+			}
+			const result = await registerCollection.updateOne(filter,updatedUser);
+			res.send(result);
+		});
+
+		//get all registered camps
+		app.get("/all/register",verifyToken,async (req,res) => {
+			const cursor = registerCollection.find();
 			const result = await cursor.toArray();
 			res.send(result);
 		});
@@ -215,6 +235,13 @@ async function run() {
 			const id = req.params.id;
 			const query = {_id : new ObjectId(id)};
 			const result = await registerCollection.deleteOne(query);
+			res.send(result);
+		});
+		//delete user registered camps
+		app.delete("/camps/:id",verifyToken,async(req,res) => {
+			const id = req.params.id;
+			const query = {_id : new ObjectId(id)};
+			const result = await campCollection.deleteOne(query);
 			res.send(result);
 		});
 
@@ -231,6 +258,9 @@ async function run() {
 			const result = await cursor.toArray();
 			res.send(result)
 		})
+
+		//add new camps
+		
 
 		// ****************** Database Operation End ******************
 
