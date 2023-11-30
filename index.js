@@ -64,6 +64,7 @@ async function run() {
 		const campCollection = database.collection("camps");
 		const registerCollection = database.collection("registered");
 		const userCollection = database.collection("users");
+		const feedbackCollection = database.collection("feedback");
 
 		//insert new user to database
 		app.post("/users", async (req, res) => {
@@ -194,28 +195,42 @@ async function run() {
 		});
 
 		//make user as a camp participant
-		app.post("/register", async (req, res) => {
+		app.post("/register",verifyToken, async (req, res) => {
 			const registerInfo = req.body;
 			const result = await registerCollection.insertOne(registerInfo);
 			res.send(result);
 		});
 
 		//get all registered camps
-		app.get("/register",async (req,res) => {
+		app.get("/register",verifyToken,async (req,res) => {
 			const email =req.query.email;
 			const query = {email:email};
 			const cursor = registerCollection.find(query);
 			const result = await cursor.toArray();
 			res.send(result);
-		})
+		});
 
 		//delete user registered camps
-		app.delete("/register/:id",async(req,res) => {
+		app.delete("/register/:id",verifyToken,async(req,res) => {
 			const id = req.params.id;
 			const query = {_id : new ObjectId(id)};
 			const result = await registerCollection.deleteOne(query);
 			res.send(result);
 		});
+
+		//get feedback from user 
+		app.post("/feedback",verifyToken,async(req,res) => {
+			const newFeedback = req.body;
+			const result = await feedbackCollection.insertOne(newFeedback);
+			res.send(result);
+
+		});
+		//get all feedback
+		app.get("/feedback",async(req,res) => {
+			const cursor = feedbackCollection.find();
+			const result = await cursor.toArray();
+			res.send(result)
+		})
 
 		// ****************** Database Operation End ******************
 
